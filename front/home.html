@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proyectos Interdisciplinarios - Home</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Barra lateral">
+    <a href="home.html" class="sidebar-item active" aria-current="page">
+      <div class="sidebar-item-icon">
+        <img src="https://uxwing.com/wp-content/themes/uxwing/download/web-app-development/home-page-white-icon.png" width="20" alt="Inicio">
+      </div>
+      <div class="sidebar-item-label">Inicio</div>
+    </a>
+
+    <a href="misProyectos.html" class="sidebar-item">
+      <div class="sidebar-item-icon">
+        <img src="https://cdn2.iconfinder.com/data/icons/leto-most-searched-mix-3/64/__menu_more-28-512.png" width="30" alt="Mis Proyectos">
+      </div>
+      <div class="sidebar-item-label">MisProyectos</div>
+    </a>
+
+    <a href="chat.html" class="sidebar-item">
+      <div class="sidebar-item-icon">
+        <img src="https://www.nicepng.com/png/full/128-1284530_chat-icon-png-white-chat-icon-white-png.png" width="20" alt="Mensajes">
+      </div>
+      <div class="sidebar-item-label">Mensajes</div>
+    </a>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <div class="main-content">
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header-left">
+        <button class="menu-btn" id="menuBtn" aria-label="Abrir menú">☰</button>
+        <h1>Proyectos Interdisciplinarios</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn-primary" data-bs-toggle="modal" data-bs-target="#newProjectModal">
+          <img src="https://img.icons8.com/m_outlined/512/FFFFFF/plus.png" width="20"> Crear Proyecto
+        </button>
+        <button class="header-btn" data-bs-toggle="modal" data-bs-target="#notificationsModal" aria-label="Notificaciones">
+          <img src="https://img.icons8.com/ios11/512/FFFFFF/appointment-reminders.png" width="20" alt="Notificaciones">
+        </button>
+        <div class="dropdown">
+          <div class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false" role="button" aria-haspopup="true" title="Usuario">U</div>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><img src="https://www.pngall.com/wp-content/uploads/5/Profile-PNG-File.png" width="20"> Mi perfil</a></li>
+            <li><a class="dropdown-item" href="misProyectos.html"><img src="https://cdn2.iconfinder.com/data/icons/leto-most-searched-mix-3/64/__menu_more-28-512.png" width="20" alt="Mis Proyectos"> Mis proyectos</a></li>
+            
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="#"><img src="https://cdn-icons-png.flaticon.com/512/148/148913.png" width="20"> Configuración</a></li>
+            <li><a class="dropdown-item" href="#"><img src="https://cdn-icons-png.flaticon.com/512/8212/8212701.png" width="20"> Cerrar sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <!-- SEARCH AND FILTERS -->
+      <section class="search-section">
+        <div class="search-bar">
+          <input type="text" class="search-input" id="searchInput" placeholder="Buscar proyectos por título, carrera, habilidades..." aria-label="Buscar proyectos">
+          <button class="search-btn" onclick="searchProjects()">Buscar</button>
+        </div>
+        <div class="filters">
+          <div class="filter-chip active" role="button" data-category="todos">Todos</div>
+          <div class="filter-chip" role="button" data-category="negocios">Negocios</div>
+          <div class="filter-chip" role="button" data-category="tecnologia">Tecnología</div>
+          <div class="filter-chip" role="button" data-category="diseno">Diseño</div>
+          <div class="filter-chip" role="button" data-category="marketing">Marketing</div>
+          <div class="filter-chip" role="button" data-category="ingenieria">Ingeniería</div>
+          <div class="filter-chip" role="button" data-category="startup">Startups</div>
+        </div>
+      </section>
+
+      <!-- FEATURED PROJECTS -->
+      <div class="section-header">
+        <div class="section-title">
+          Proyectos Destacados <span class="section-count" id="projectCount">(8)</span>
+        </div>
+        <a class="show-all" href="#" onclick="showAllProjects()">Ver todos →</a>
+      </div>
+
+      <div class="project-grid" id="projectGrid">
+        <!-- Projects will be rendered here by JavaScript -->
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: Crear Nuevo Proyecto -->
+  <div class="modal fade" id="newProjectModal" tabindex="-1" aria-labelledby="newProjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="newProjectModalLabel">Crear Nuevo Proyecto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <form id="newProjectForm">
+            <div class="mb-3">
+              <label for="projectTitle" class="form-label">Título del Proyecto *</label>
+              <input type="text" class="form-control" id="projectTitle" placeholder="Ej: App de Salud Mental" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="projectDescription" class="form-label">Descripción *</label>
+              <textarea class="form-control" id="projectDescription" rows="4" placeholder="Describe tu proyecto..." required></textarea>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="projectCategory" class="form-label">Categoría *</label>
+                <select class="form-select" id="projectCategory" required>
+                  <option value="">Seleccionar...</option>
+                  <option value="negocios">Negocios</option>
+                  <option value="tecnologia">Tecnología</option>
+                  <option value="diseno">Diseño</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="ingenieria">Ingeniería</option>
+                  <option value="startup">Startup</option>
+                </select>
+              </div>
+
+              
+            </div>
+
+            <div class="mb-3">
+              <label for="projectTeamSize" class="form-label">Tamaño del Equipo *</label>
+              <input type="number" class="form-control" id="projectTeamSize" min="1" max="20" value="5" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Habilidades Requeridas</label>
+              <div class="d-flex flex-wrap gap-2" id="skillsContainer">
+                <span class="skill-badge" onclick="toggleSkill(this)">JavaScript</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Python</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">React</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Node.js</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">UI/UX</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Marketing</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Diseño</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Firebase</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">IoT</span>
+                <span class="skill-badge" onclick="toggleSkill(this)">Arduino</span>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" onclick="createProject()">Crear Proyecto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Detalles del Proyecto -->
+  <div class="modal fade" id="projectDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="projectDetailTitle">Detalles del Proyecto</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body" id="projectDetailBody">
+          <!-- Content loaded dynamically -->
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" onclick="joinProject()">Unirse al Proyecto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Custom JS -->
+  <script src="home.js"></script>
+</body>
+</html>
