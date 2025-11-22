@@ -60,12 +60,11 @@
         <div class="dropdown">
           <div class="user-avatar" data-bs-toggle="dropdown" aria-expanded="false" role="button" aria-haspopup="true" title="Usuario">User</div>
           <ul class="dropdown-menu dropdown-menu-end">
-            <li><a class="dropdown-item" href="#"><img src="https://www.pngall.com/wp-content/uploads/5/Profile-PNG-File.png" width="20"> Mi perfil</a></li>
-            <li><a class="dropdown-item" href="#"><img src="https://cdn2.iconfinder.com/data/icons/leto-most-searched-mix-3/64/__menu_more-28-512.png" width="20" alt="Mis Proyectos"> Mis proyectos</a></li>
+            <li><a class="dropdown-item" href="login.html"><img src="https://www.pngall.com/wp-content/uploads/5/Profile-PNG-File.png" width="20"> Mi perfil</a></li>
             
             <li><hr class="dropdown-divider"></li>
-            <li><a class="dropdown-item" href="#"><img src="https://cdn-icons-png.flaticon.com/512/148/148913.png" width="20"> Configuración</a></li>
-            <li><a class="dropdown-item" href="#"><img src="https://cdn-icons-png.flaticon.com/512/8212/8212701.png" width="20"> Cerrar sesión</a></li>
+            
+            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal"><img src="https://cdn-icons-png.flaticon.com/512/8212/8212701.png" width="20"> Cerrar sesión</a></li>
           </ul>
         </div>
       </div>
@@ -247,6 +246,9 @@
               <textarea class="form-control" id="editProjectDescription" rows="4" required></textarea>
             </div>
 
+            <!--
+            
+            -->
             <div class="mb-3">
               <label for="editProjectProgress" class="form-label">Progreso (%)</label>
               <input type="range" class="form-range" id="editProjectProgress" min="0" max="100" value="0" oninput="updateProgressLabel(this.value)">
@@ -283,6 +285,29 @@
         <div class="modal-footer">
           <button class="btn btn-secondary btn-sm" onclick="markAllAsRead()">Marcar todas como leídas</button>
           <button class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL: Cerrar Sesión -->
+  <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="logoutModalLabel">Cerrar Sesión</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          <div class="logout-icon mb-3">
+            <img src="https://cdn-icons-png.flaticon.com/512/8212/8212701.png" width="64" alt="Logout">
+          </div>
+          <h5 class="mb-2">¿Estás seguro que deseas cerrar sesión?</h5>
+          <p class="text-muted mb-0">Podrás volver a iniciar sesión en cualquier momento</p>
+        </div>
+        <div class="modal-footer border-0 justify-content-center pb-4">
+          <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger px-4" onclick="confirmLogout()">Cerrar Sesión</button>
         </div>
       </div>
     </div>

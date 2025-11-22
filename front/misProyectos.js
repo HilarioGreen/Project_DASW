@@ -192,7 +192,7 @@ function createProjectCard(project) {
     actionsHTML = `
       <div class="project-actions">
         <button class="action-btn" onclick="viewProjectDetails(${project.id})">Ver detalles</button>
-        <button class="action-btn" onclick="goToChat(${project.id})">Chat</button>
+        
         <button class="action-btn" onclick="editProject(${project.id})">Editar</button>
       </div>
     `;
@@ -461,12 +461,6 @@ function archiveProject(projectId) {
   }
 }
 
-function goToChat(projectId) {
-  showToast('Abriendo chat del proyecto...', 'success');
-  // Redirect to chat page
-  // window.location.href = `chat.html?project=${projectId}`;
-}
-
 function downloadProject(projectId) {
   const project = projects.find(p => p.id === projectId);
   if (project) {
@@ -506,4 +500,25 @@ function showToast(message, type = 'success') {
       container.removeChild(toast);
     }, 300);
   }, 3000);
+}
+
+// Función para confirmar cierre de sesión
+function confirmLogout() {
+  // Limpiar datos de sesión
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('rememberedEmail');
+  
+  // Mostrar notificación
+  showToast('success', 'Sesión cerrada', 'Has cerrado sesión exitosamente');
+  
+  // Cerrar el modal
+  const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+  if (logoutModal) {
+    logoutModal.hide();
+  }
+  
+  // Redirigir al login después de 1 segundo
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 1000);
 }

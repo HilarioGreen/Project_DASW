@@ -293,7 +293,6 @@ function createProjectCard(project) {
   article.innerHTML = `
     <div class="project-header">
       <div class="project-title">${project.title}</div>
-      <button class="project-menu" onclick="event.stopPropagation(); showProjectMenu(${project.id})">⋮</button>
     </div>
     <div>
       <div class="project-description">${project.description}</div>
@@ -307,8 +306,8 @@ function createProjectCard(project) {
         <span>${project.author}</span>
       </div>
       <div class="project-stats">
-        <div class="stat">👥 ${project.currentMembers}/${project.teamSize}</div>
-        <div class="stat">💬 ${project.messages}</div>
+        <div class="stat"><img src="https://cdn-icons-png.flaticon.com/256/12376/12376407.png" width="20" height="25"> ${project.currentMembers}/${project.teamSize}</div>
+        <div class="stat"><img src="https://static.vecteezy.com/system/resources/previews/021/665/835/non_2x/black-and-white-chat-icon-set-for-communication-free-png.png" width="25"> ${project.messages}</div>
       </div>
     </div>
   `;
@@ -316,9 +315,9 @@ function createProjectCard(project) {
   return article;
 }
 
-// ===========================
+// 
 // PROJECT DETAILS
-// ===========================
+// 
 function loadProjectDetails(projectId) {
   const project = allProjects.find(p => p.id === projectId);
   if (!project) return;
@@ -364,11 +363,7 @@ function loadProjectDetails(projectId) {
   modal.show();
 }
 
-function showProjectMenu(projectId) {
-  console.log('Mostrando menú del proyecto', projectId);
-  showToast('Menú del proyecto próximamente...', 'info');
-}
-
+/*
 function showAllProjects() {
   document.querySelectorAll('.filter-chip').forEach(chip => {
     chip.classList.remove('active');
@@ -378,9 +373,11 @@ function showAllProjects() {
   renderProjects();
 }
 
-// ===========================
+*/
+
+// 
 // PROJECT CREATION
-// ===========================
+// 
 function toggleSkill(element) {
   element.classList.toggle('selected');
 }
@@ -389,7 +386,7 @@ function createProject() {
   const title = document.getElementById('projectTitle').value;
   const description = document.getElementById('projectDescription').value;
   const category = document.getElementById('projectCategory').value;
-  const icon = document.getElementById('projectIcon').value || '📁';
+  //const icon = document.getElementById('projectIcon').value || 'imagen';
   const teamSize = parseInt(document.getElementById('projectTeamSize').value);
 
   if (!title || !description || !category) {
@@ -492,4 +489,25 @@ function showToast(message, type = 'success') {
       }
     }, 300);
   }, 3000);
+}
+
+// Función para confirmar cierre de sesión
+function confirmLogout() {
+  // Limpiar datos de sesión
+  localStorage.removeItem('currentUser');
+  localStorage.removeItem('rememberedEmail');
+  
+  // Mostrar notificación
+  showToast('success', 'Sesión cerrada', 'Has cerrado sesión exitosamente');
+  
+  // Cerrar el modal
+  const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
+  if (logoutModal) {
+    logoutModal.hide();
+  }
+  
+  // Redirigir al login después de 1 segundo
+  setTimeout(() => {
+    window.location.href = 'login.html';
+  }, 1000);
 }
