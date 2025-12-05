@@ -516,6 +516,17 @@ body {
   border-color: #7c3aed;
 }
 
+.action-btn.btn-danger {
+  background: #7f1d1d;
+  border-color: #991b1b;
+  color: #fecaca;
+}
+
+.action-btn.btn-danger:hover {
+  background: #991b1b;
+  border-color: #dc2626;
+}
+
 /* EMPTY STATE */
 .empty-state {
   text-align: center;
