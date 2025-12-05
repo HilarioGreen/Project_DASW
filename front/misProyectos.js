@@ -1,5 +1,5 @@
 // URL del backend
-const API_URL = 'http://localhost:5001/api';
+const API_URL = 'https://projectdasw-production.up.railway.app/api';
 
 // Variables globales
 let projects = [];

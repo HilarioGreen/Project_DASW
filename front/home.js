@@ -1,172 +1,117 @@
-// ===========================
-// GLOBAL VARIABLES
-// ===========================
-let allProjects = [
-  {
-    id: 1,
-    title: "App de Salud Mental para Estudiantes",
-    description: "Buscamos desarrolladores y diseñadores para crear una aplicación que conecte estudiantes con recursos de apoyo psicológico y bienestar.",
-    icon: "🚀",
-    category: "tecnologia",
-    author: "María González - Psicología",
-    teamSize: 5,
-    currentMembers: 3,
-    messages: 12,
-    tags: ["React Native", "UI/UX", "Psicología"]
-  },
-  {
-    id: 2,
-    title: "Startup de Agricultura Urbana",
-    description: "Proyecto de emprendimiento para desarrollar soluciones de cultivo urbano sostenible. Necesitamos ingenieros ambientales y marketers.",
-    icon: "🌱",
-    category: "startup",
-    author: "Carlos Ruiz - Agronomía",
-    teamSize: 6,
-    currentMembers: 4,
-    messages: 8,
-    tags: ["Startup", "Sostenibilidad", "Marketing"]
-  },
-  {
-    id: 3,
-    title: "Plataforma de Arte Digital Colaborativo",
-    description: "Creación de una plataforma web donde artistas pueden colaborar en tiempo real. Buscamos desarrolladores full-stack.",
-    icon: "🎨",
-    category: "diseno",
-    author: "Ana López - Bellas Artes",
-    teamSize: 4,
-    currentMembers: 2,
-    messages: 15,
-    tags: ["Web Dev", "Arte Digital", "WebSocket"]
-  },
-  {
-    id: 4,
-    title: "Sistema IoT para Hogares Inteligentes",
-    description: "Desarrollo de un sistema de automatización del hogar con enfoque en eficiencia energética. Buscamos programadores e ing. eléctricos.",
-    icon: "💡",
-    category: "ingenieria",
-    author: "Roberto Díaz - Ing. Mecatrónica",
-    teamSize: 7,
-    currentMembers: 5,
-    messages: 20,
-    tags: ["IoT", "Arduino", "Python"]
-  },
-  {
-    id: 5,
-    title: "Plataforma E-Learning Interactiva",
-    description: "Desarrollo de una plataforma educativa con gamificación para estudiantes de secundaria.",
-    icon: "📚",
-    category: "tecnologia",
-    author: "Laura Martínez - Educación",
-    teamSize: 6,
-    currentMembers: 3,
-    messages: 18,
-    tags: ["React", "Node.js", "Educación"]
-  },
-  {
-    id: 6,
-    title: "Campaña Marketing Digital Sostenible",
-    description: "Estrategia de marketing para productos ecológicos dirigida a millennials y Gen Z.",
-    icon: "📱",
-    category: "marketing",
-    author: "Diego Torres - Marketing",
-    teamSize: 4,
-    currentMembers: 2,
-    messages: 9,
-    tags: ["Marketing", "Redes Sociales", "Sostenibilidad"]
-  },
-  {
-    id: 7,
-    title: "App de Gestión Financiera Personal",
-    description: "Aplicación móvil para ayudar a jóvenes a administrar sus finanzas de manera inteligente.",
-    icon: "💰",
-    category: "negocios",
-    author: "Patricia Gómez - Finanzas",
-    teamSize: 5,
-    currentMembers: 4,
-    messages: 22,
-    tags: ["Flutter", "Finanzas", "UI/UX"]
-  },
-  {
-    id: 8,
-    title: "Robot Clasificador de Residuos",
-    description: "Proyecto de robótica para clasificación automática de residuos con inteligencia artificial.",
-    icon: "🤖",
-    category: "ingenieria",
-    author: "Miguel Ángel - Ing. Robótica",
-    teamSize: 8,
-    currentMembers: 6,
-    messages: 25,
-    tags: ["IA", "Robótica", "Python"]
-  }
-];
+// URL del backend
+const API_URL = 'https://projectdasw-production.up.railway.app/api';
 
-let filteredProjects = [...allProjects];
+// Variables globales
+let allProjects = [];
+let filteredProjects = [];
 let currentProjectId = null;
 
-// Notifications data
-let notifications = [
-  {
-    id: 1,
-    type: 'project',
-    icon: '📁',
-    title: 'Nuevo miembro en tu proyecto',
-    text: 'Ana López se unió a "App de Salud Mental"',
-    time: 'Hace 5 minutos',
-    read: false
-  },
-  {
-    id: 2,
-    type: 'message',
-    icon: '💬',
-    title: 'Nuevo mensaje',
-    text: 'Carlos Ruiz: "¿Podemos reunirnos mañana?"',
-    time: 'Hace 1 hora',
-    read: false
-  },
-  {
-    id: 3,
-    type: 'invite',
-    icon: '🎯',
-    title: 'Invitación a proyecto',
-    text: 'Te invitaron a unirte a "Sistema IoT Hogares"',
-    time: 'Hace 2 horas',
-    read: false
-  },
-  {
-    id: 4,
-    type: 'milestone',
-    icon: '🎉',
-    title: 'Hito completado',
-    text: 'El proyecto "Plataforma Arte Digital" alcanzó 50% de progreso',
-    time: 'Hace 3 horas',
-    read: true
-  },
-  {
-    id: 5,
-    type: 'comment',
-    icon: '💭',
-    title: 'Nuevo comentario',
-    text: 'María comentó en tu proyecto',
-    time: 'Hace 5 horas',
-    read: true
-  }
-];
+// Notificaciones (por ahora estaticas, luego se conectaran al backend)
+let notifications = [];
 
-// ===========================
-// INITIALIZATION
-// ===========================
-document.addEventListener('DOMContentLoaded', function() {
-  renderProjects();
+// Obtener token
+function getToken() {
+  return localStorage.getItem('token');
+}
+
+// Verificar autenticacion
+function checkAuth() {
+  const token = getToken();
+  if (!token) {
+    window.location.href = 'login.html';
+    return false;
+  }
+  return true;
+}
+
+// Funcion para hacer peticiones al API
+async function apiRequest(endpoint, method = 'GET', data = null) {
+  const token = getToken();
+
+  const config = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  if (token) {
+    config.headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  if (data) {
+    config.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(`${API_URL}${endpoint}`, config);
+  return response.json();
+}
+
+// Inicializacion
+document.addEventListener('DOMContentLoaded', async function() {
+  if (!checkAuth()) return;
+
+  await loadProjects();
   initializeFilters();
   initializeSidebar();
   initializeSearch();
-  initializeNotifications();
-  updateNotificationBadge();
+  loadUserInfo();
 });
 
-// ===========================
-// SIDEBAR FUNCTIONS
-// ===========================
+// Cargar info del usuario
+function loadUserInfo() {
+  const userData = localStorage.getItem('currentUser');
+  if (userData) {
+    const user = JSON.parse(userData);
+    const avatar = document.querySelector('.user-avatar');
+    if (avatar) {
+      avatar.textContent = user.nombre ? user.nombre.substring(0, 2).toUpperCase() : 'US';
+    }
+  }
+}
+
+// Cargar proyectos desde el backend
+async function loadProjects(categoria = null, search = null) {
+  try {
+    let endpoint = '/projects';
+    const params = [];
+
+    if (categoria && categoria !== 'todos') {
+      params.push(`categoria=${categoria}`);
+    }
+    if (search) {
+      params.push(`search=${encodeURIComponent(search)}`);
+    }
+
+    if (params.length > 0) {
+      endpoint += '?' + params.join('&');
+    }
+
+    const result = await apiRequest(endpoint);
+
+    if (result.success) {
+      allProjects = result.data.map(p => ({
+        id: p._id,
+        title: p.titulo,
+        description: p.descripcion,
+        category: p.categoria,
+        author: p.owner ? `${p.owner.nombre} - ${p.owner.carrera}` : 'Usuario',
+        teamSize: p.tamanoEquipo,
+        currentMembers: p.miembrosActuales,
+        messages: 0,
+        tags: p.habilidadesRequeridas || []
+      }));
+      filteredProjects = [...allProjects];
+      renderProjects();
+    } else {
+      console.error('Error al cargar proyectos:', result.error);
+    }
+  } catch (error) {
+    console.error('Error de conexion:', error);
+  }
+}
+
+// Sidebar
 function initializeSidebar() {
   const menuBtn = document.getElementById('menuBtn');
   const sidebar = document.getElementById('sidebar');
@@ -175,7 +120,6 @@ function initializeSidebar() {
     menuBtn.addEventListener('click', toggleSidebar);
   }
 
-  // Close sidebar when clicking outside (mobile)
   document.addEventListener('click', function(event) {
     if (window.innerWidth <= 768 &&
         !sidebar.contains(event.target) &&
@@ -191,85 +135,55 @@ function toggleSidebar() {
   sidebar.classList.toggle('open');
 }
 
-// ===========================
-// FILTER FUNCTIONS
-// ===========================
+// Filtros
 function initializeFilters() {
   document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', function() {
-      // Remove active from all chips
+    chip.addEventListener('click', async function() {
       document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      // Add active to clicked chip
       this.classList.add('active');
-      
-      // Filter projects
+
       const category = this.getAttribute('data-category');
-      filterProjectsByCategory(category);
+      await loadProjects(category);
     });
   });
 }
 
-function filterProjectsByCategory(category) {
-  if (category === 'todos') {
-    filteredProjects = [...allProjects];
-  } else {
-    filteredProjects = allProjects.filter(project => project.category === category);
-  }
-  renderProjects();
-}
-
-// ===========================
-// SEARCH FUNCTIONS
-// ===========================
+// Busqueda
 function initializeSearch() {
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
-    searchInput.addEventListener('keypress', function(e) {
+    searchInput.addEventListener('keypress', async function(e) {
       if (e.key === 'Enter') {
-        searchProjects();
+        await searchProjects();
       }
     });
   }
 }
 
-function searchProjects() {
-  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-  
-  if (searchTerm.trim() === '') {
-    filteredProjects = [...allProjects];
-  } else {
-    filteredProjects = allProjects.filter(project => {
-      return project.title.toLowerCase().includes(searchTerm) ||
-             project.description.toLowerCase().includes(searchTerm) ||
-             project.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
-             project.author.toLowerCase().includes(searchTerm);
-    });
-  }
-  
-  renderProjects();
-  
+async function searchProjects() {
+  const searchTerm = document.getElementById('searchInput').value;
+  await loadProjects(null, searchTerm);
+
   if (filteredProjects.length === 0) {
     showToast('No se encontraron proyectos con ese criterio', 'warning');
   }
 }
 
-// ===========================
-// RENDER FUNCTIONS
-// ===========================
+// Renderizar proyectos
 function renderProjects() {
   const grid = document.getElementById('projectGrid');
   const count = document.getElementById('projectCount');
-  
+
   if (!grid) return;
-  
+
   grid.innerHTML = '';
-  
+
   if (filteredProjects.length === 0) {
     grid.innerHTML = `
       <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #888;">
         <div style="font-size: 64px; margin-bottom: 16px;">🔍</div>
         <h3 style="font-size: 18px; color: #e0e0e0; margin-bottom: 8px;">No se encontraron proyectos</h3>
-        <p style="font-size: 14px;">Intenta con otros criterios de búsqueda</p>
+        <p style="font-size: 14px;">Intenta con otros criterios de busqueda</p>
       </div>
     `;
   } else {
@@ -277,7 +191,7 @@ function renderProjects() {
       grid.appendChild(createProjectCard(project));
     });
   }
-  
+
   if (count) {
     count.textContent = `(${filteredProjects.length})`;
   }
@@ -287,9 +201,9 @@ function createProjectCard(project) {
   const article = document.createElement('article');
   article.className = 'project-card';
   article.onclick = () => loadProjectDetails(project.id);
-  
+
   const tagsHTML = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-  
+
   article.innerHTML = `
     <div class="project-header">
       <div class="project-title">${project.title}</div>
@@ -307,178 +221,147 @@ function createProjectCard(project) {
       </div>
       <div class="project-stats">
         <div class="stat"><img src="https://cdn-icons-png.flaticon.com/256/12376/12376407.png" width="20" height="25"> ${project.currentMembers}/${project.teamSize}</div>
-        <div class="stat"><img src="https://static.vecteezy.com/system/resources/previews/021/665/835/non_2x/black-and-white-chat-icon-set-for-communication-free-png.png" width="25"> ${project.messages}</div>
       </div>
     </div>
   `;
-  
+
   return article;
 }
 
-// 
-// PROJECT DETAILS
-// 
-function loadProjectDetails(projectId) {
-  const project = allProjects.find(p => p.id === projectId);
-  if (!project) return;
-  
-  currentProjectId = projectId;
-  
-  const tagsHTML = project.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-  
-  document.getElementById('projectDetailTitle').textContent = project.title;
-  document.getElementById('projectDetailBody').innerHTML = `
-    <div class="detail-section">
-      <h6>Descripción</h6>
-      <p>${project.description}</p>
-    </div>
+// Detalles del proyecto
+async function loadProjectDetails(projectId) {
+  try {
+    const result = await apiRequest(`/projects/${projectId}`);
 
-    <div class="detail-section">
-      <h6>Categoría</h6>
-      <p style="text-transform: capitalize;">${project.category}</p>
-    </div>
+    if (result.success) {
+      const project = result.data;
+      currentProjectId = projectId;
 
-    <div class="detail-section">
-      <h6>Tecnologías / Habilidades</h6>
-      <div class="project-tags">${tagsHTML}</div>
-    </div>
+      const tagsHTML = (project.habilidadesRequeridas || []).map(tag => `<span class="tag">${tag}</span>`).join('');
 
-    <div class="detail-section">
-      <h6>Equipo</h6>
-      <p>${project.currentMembers} de ${project.teamSize} miembros</p>
-    </div>
+      document.getElementById('projectDetailTitle').textContent = project.titulo;
+      document.getElementById('projectDetailBody').innerHTML = `
+        <div class="detail-section">
+          <h6>Descripcion</h6>
+          <p>${project.descripcion}</p>
+        </div>
 
-    <div class="detail-section">
-      <h6>Líder del Proyecto</h6>
-      <p>${project.author}</p>
-    </div>
+        <div class="detail-section">
+          <h6>Categoria</h6>
+          <p style="text-transform: capitalize;">${project.categoria}</p>
+        </div>
 
-    <div class="detail-section">
-      <h6>Actividad</h6>
-      <p>${project.messages} mensajes en el chat del proyecto</p>
-    </div>
-  `;
-  
-  const modal = new bootstrap.Modal(document.getElementById('projectDetailModal'));
-  modal.show();
+        <div class="detail-section">
+          <h6>Tecnologias / Habilidades</h6>
+          <div class="project-tags">${tagsHTML}</div>
+        </div>
+
+        <div class="detail-section">
+          <h6>Equipo</h6>
+          <p>${project.miembrosActuales} de ${project.tamanoEquipo} miembros</p>
+        </div>
+
+        <div class="detail-section">
+          <h6>Lider del Proyecto</h6>
+          <p>${project.owner ? project.owner.nombre : 'Usuario'}</p>
+        </div>
+      `;
+
+      const modal = new bootstrap.Modal(document.getElementById('projectDetailModal'));
+      modal.show();
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Error al cargar detalles del proyecto', 'error');
+  }
 }
 
-/*
-function showAllProjects() {
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.classList.remove('active');
-  });
-  document.querySelector('.filter-chip[data-category="todos"]').classList.add('active');
-  filteredProjects = [...allProjects];
-  renderProjects();
-}
-
-*/
-
-// 
-// PROJECT CREATION
-// 
+// Toggle skill selection
 function toggleSkill(element) {
   element.classList.toggle('selected');
 }
 
-function createProject() {
-  const title = document.getElementById('projectTitle').value;
-  const description = document.getElementById('projectDescription').value;
-  const category = document.getElementById('projectCategory').value;
-  //const icon = document.getElementById('projectIcon').value || 'imagen';
-  const teamSize = parseInt(document.getElementById('projectTeamSize').value);
+// Crear proyecto
+async function createProject() {
+  const titulo = document.getElementById('projectTitle').value;
+  const descripcion = document.getElementById('projectDescription').value;
+  const categoria = document.getElementById('projectCategory').value;
+  const tamanoEquipo = parseInt(document.getElementById('projectTeamSize').value);
 
-  if (!title || !description || !category) {
+  if (!titulo || !descripcion || !categoria) {
     showToast('Por favor completa todos los campos requeridos', 'error');
     return;
   }
 
-  // Get selected skills
-  const selectedSkills = Array.from(document.querySelectorAll('.skill-badge.selected'))
+  const habilidadesRequeridas = Array.from(document.querySelectorAll('.skill-badge.selected'))
     .map(skill => skill.textContent);
 
-  if (selectedSkills.length === 0) {
-    showToast('Por favor selecciona al menos una habilidad', 'warning');
-    return;
-  }
+  try {
+    const result = await apiRequest('/projects', 'POST', {
+      titulo,
+      descripcion,
+      categoria,
+      tamanoEquipo,
+      habilidadesRequeridas
+    });
 
-  // Create new project object
-  const newProject = {
-    id: allProjects.length + 1,
-    title: title,
-    description: description,
-    icon: icon,
-    category: category,
-    author: "Usuario Actual - Tu Carrera",
-    teamSize: teamSize,
-    currentMembers: 1,
-    messages: 0,
-    tags: selectedSkills
-  };
+    if (result.success) {
+      // Cerrar modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('newProjectModal'));
+      modal.hide();
 
-  allProjects.push(newProject);
-  filteredProjects = [...allProjects];
+      // Limpiar formulario
+      document.getElementById('newProjectForm').reset();
+      document.querySelectorAll('.skill-badge').forEach(skill => {
+        skill.classList.remove('selected');
+      });
 
-  // Close modal
-  const modal = bootstrap.Modal.getInstance(document.getElementById('newProjectModal'));
-  modal.hide();
+      // Recargar proyectos
+      await loadProjects();
 
-  // Reset form
-  document.getElementById('newProjectForm').reset();
-  document.querySelectorAll('.skill-badge').forEach(skill => {
-    skill.classList.remove('selected');
-  });
-
-  // Re-render
-  renderProjects();
-
-  showToast('¡Proyecto creado exitosamente!', 'success');
-  
-  // Scroll to the new project
-  setTimeout(() => {
-    const projectCards = document.querySelectorAll('.project-card');
-    if (projectCards.length > 0) {
-      projectCards[projectCards.length - 1].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      showToast('Proyecto creado exitosamente!', 'success');
+    } else {
+      showToast(result.error || 'Error al crear proyecto', 'error');
     }
-  }, 100);
-}
-
-// ===========================
-// PROJECT ACTIONS
-// ===========================
-function joinProject() {
-  if (!currentProjectId) return;
-  
-  const project = allProjects.find(p => p.id === currentProjectId);
-  if (!project) return;
-  
-  if (project.currentMembers >= project.teamSize) {
-    showToast('Este proyecto ya tiene el equipo completo', 'warning');
-    return;
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Error de conexion con el servidor', 'error');
   }
-  
-  project.currentMembers++;
-  
-  // Close modal
-  const modal = bootstrap.Modal.getInstance(document.getElementById('projectDetailModal'));
-  modal.hide();
-  
-  renderProjects();
-  showToast(`¡Te has unido al proyecto "${project.title}"!`, 'success');
 }
 
-// ===========================
-// UTILITY FUNCTIONS
-// ===========================
+// Unirse a proyecto (postularse)
+async function joinProject() {
+  if (!currentProjectId) return;
+
+  try {
+    const result = await apiRequest('/applications', 'POST', {
+      proyectoId: currentProjectId,
+      mensaje: 'Me gustaria unirme a este proyecto'
+    });
+
+    const modal = bootstrap.Modal.getInstance(document.getElementById('projectDetailModal'));
+    modal.hide();
+
+    if (result.success) {
+      showToast('Solicitud enviada! El lider del proyecto revisara tu postulacion', 'success');
+    } else {
+      showToast(result.error || 'Error al postularse', 'error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('Error de conexion con el servidor', 'error');
+  }
+}
+
+// Toast
 function showToast(message, type = 'success') {
   const container = document.getElementById('toastContainer');
   if (!container) return;
-  
+
   const toast = document.createElement('div');
   toast.className = `toast-notification ${type}`;
   toast.textContent = message;
-  
+
   container.appendChild(toast);
 
   setTimeout(() => {
@@ -491,22 +374,19 @@ function showToast(message, type = 'success') {
   }, 3000);
 }
 
-// Función para confirmar cierre de sesión
+// Cerrar sesion
 function confirmLogout() {
-  // Limpiar datos de sesión
   localStorage.removeItem('currentUser');
+  localStorage.removeItem('token');
   localStorage.removeItem('rememberedEmail');
-  
-  // Mostrar notificación
-  showToast('success', 'Sesión cerrada', 'Has cerrado sesión exitosamente');
-  
-  // Cerrar el modal
+
+  showToast('Sesion cerrada', 'success');
+
   const logoutModal = bootstrap.Modal.getInstance(document.getElementById('logoutModal'));
   if (logoutModal) {
     logoutModal.hide();
   }
-  
-  // Redirigir al login después de 1 segundo
+
   setTimeout(() => {
     window.location.href = 'login.html';
   }, 1000);

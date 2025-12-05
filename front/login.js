@@ -1,3 +1,6 @@
+// URL del backend
+const API_URL = 'https://projectdasw-production.up.railway.app/api';
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
   initPasswordStrength();
@@ -27,7 +30,7 @@ function showForgotPassword() {
 function togglePassword(inputId) {
   const input = document.getElementById(inputId);
   const button = input.parentElement.querySelector('.toggle-password img');
-  
+
   if (input.type === 'password') {
     input.type = 'text';
     button.src = 'https://img.icons8.com/m_outlined/512/000000/invisible.png';
@@ -41,36 +44,28 @@ function togglePassword(inputId) {
 function initPasswordStrength() {
   const passwordInput = document.getElementById('signupPassword');
   const strengthBar = document.getElementById('passwordStrength');
-  
+
   if (passwordInput) {
     passwordInput.addEventListener('input', function() {
       const password = this.value;
-      
+
       if (password.length === 0) {
         strengthBar.classList.remove('active', 'weak', 'medium', 'strong');
         return;
       }
-      
+
       strengthBar.classList.add('active');
-      
+
       let strength = 0;
-      
-      // Length
+
       if (password.length >= 8) strength++;
       if (password.length >= 12) strength++;
-      
-      // Contains numbers
       if (/\d/.test(password)) strength++;
-      
-      // Contains lowercase and uppercase
       if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
-      
-      // Contains special characters
       if (/[^a-zA-Z0-9]/.test(password)) strength++;
-      
-      // Update strength indicator
+
       strengthBar.classList.remove('weak', 'medium', 'strong');
-      
+
       if (strength <= 2) {
         strengthBar.classList.add('weak');
       } else if (strength <= 4) {
@@ -83,193 +78,192 @@ function initPasswordStrength() {
 }
 
 // Handle Login
-function handleLogin(event) {
+async function handleLogin(event) {
   event.preventDefault();
-  
+
   const email = document.getElementById('loginEmail').value;
   const password = document.getElementById('loginPassword').value;
   const rememberMe = document.getElementById('rememberMe').checked;
-  
-  // Basic validation
+
   if (!email || !password) {
     showToast('error', 'Error', 'Por favor completa todos los campos');
     return;
   }
-  
-  // Show loading state
+
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
-  
-  // Simulate API call
-  setTimeout(() => {
+
+  try {
+    const response = await fetch(`${API_URL}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
-    
-    // Save user if remember me is checked
-    if (rememberMe) {
-      localStorage.setItem('rememberedEmail', email);
+
+    if (data.success) {
+      // Guardar token y datos del usuario
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('currentUser', JSON.stringify(data.data));
+
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
+
+      showToast('success', '¡Bienvenido!', 'Inicio de sesion exitoso');
+
+      setTimeout(() => {
+        window.location.href = 'home.html';
+      }, 1000);
     } else {
-      localStorage.removeItem('rememberedEmail');
+      showToast('error', 'Error', data.error || 'Error al iniciar sesion');
     }
-    
-    // Save user session
-    const userData = {
-      email: email,
-      name: email.split('@')[0],
-      loggedIn: true,
-      loginTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
-    showToast('success', '¡Bienvenido!', 'Inicio de sesión exitoso');
-    
-    // Redirect to home
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 1000);
-  }, 1500);
+
+  } catch (error) {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+    console.error('Error:', error);
+    showToast('error', 'Error', 'Error de conexion con el servidor');
+  }
 }
 
 // Handle Signup
-function handleSignup(event) {
+async function handleSignup(event) {
   event.preventDefault();
-  
-  const name = document.getElementById('signupName').value;
+
+  const nombre = document.getElementById('signupName').value;
   const email = document.getElementById('signupEmail').value;
-  const career = document.getElementById('signupCareer').value;
+  const carrera = document.getElementById('signupCareer').value;
   const password = document.getElementById('signupPassword').value;
   const confirmPassword = document.getElementById('signupConfirmPassword').value;
-  
-  // Validation
-  if (!name || !email || !career || !password || !confirmPassword) {
+
+  if (!nombre || !email || !carrera || !password || !confirmPassword) {
     showToast('error', 'Error', 'Por favor completa todos los campos');
     return;
   }
-  
+
   if (password !== confirmPassword) {
     showToast('error', 'Error', 'Las contraseñas no coinciden');
     return;
   }
-  
+
   if (password.length < 8) {
     showToast('error', 'Error', 'La contraseña debe tener al menos 8 caracteres');
     return;
   }
-  
-  // Show loading state
+
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
-  
-  // Simulate API call
-  setTimeout(() => {
+
+  try {
+    const response = await fetch(`${API_URL}/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ nombre, email, password, carrera })
+    });
+
+    const data = await response.json();
+
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
-    
-    // Save user data
-    const userData = {
-      name: name,
-      email: email,
-      career: career,
-      loggedIn: true,
-      signupTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    
-    showToast('success', '¡Cuenta creada!', 'Tu cuenta ha sido creada exitosamente');
-    
-    // Redirect to home
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 1000);
-  }, 1500);
+
+    if (data.success) {
+      // Guardar token y datos del usuario
+      localStorage.setItem('token', data.data.token);
+      localStorage.setItem('currentUser', JSON.stringify(data.data));
+
+      showToast('success', '¡Cuenta creada!', 'Tu cuenta ha sido creada exitosamente');
+
+      setTimeout(() => {
+        window.location.href = 'home.html';
+      }, 1000);
+    } else {
+      showToast('error', 'Error', data.error || 'Error al crear cuenta');
+    }
+
+  } catch (error) {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+    console.error('Error:', error);
+    showToast('error', 'Error', 'Error de conexion con el servidor');
+  }
 }
 
 // Handle Forgot Password
-function handleForgotPassword(event) {
+async function handleForgotPassword(event) {
   event.preventDefault();
-  
+
   const email = document.getElementById('forgotEmail').value;
-  
+
   if (!email) {
-    showToast('error', 'Error', 'Por favor ingresa tu correo electrónico');
+    showToast('error', 'Error', 'Por favor ingresa tu correo electronico');
     return;
   }
-  
-  // Show loading state
+
   const submitBtn = event.target.querySelector('button[type="submit"]');
   submitBtn.classList.add('loading');
   submitBtn.disabled = true;
-  
-  // Simulate API call
-  setTimeout(() => {
+
+  try {
+    const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json();
+
     submitBtn.classList.remove('loading');
     submitBtn.disabled = false;
-    
-    showToast('success', 'Correo enviado', 'Revisa tu bandeja de entrada para restablecer tu contraseña');
-    
-    // Switch back to login after 2 seconds
-    setTimeout(() => {
-      switchToLogin();
-      document.getElementById('forgotEmail').value = '';
-    }, 2000);
-  }, 1500);
+
+    if (data.success) {
+      showToast('success', 'Correo enviado', 'Revisa tu bandeja de entrada para restablecer tu contraseña');
+
+      setTimeout(() => {
+        switchToLogin();
+        document.getElementById('forgotEmail').value = '';
+      }, 2000);
+    } else {
+      showToast('error', 'Error', data.error || 'Error al enviar correo');
+    }
+
+  } catch (error) {
+    submitBtn.classList.remove('loading');
+    submitBtn.disabled = false;
+    console.error('Error:', error);
+    showToast('error', 'Error', 'Error de conexion con el servidor');
+  }
 }
 
-// Social Login Functions
+// Social Login Functions (por ahora solo muestra mensaje)
 function loginWithGoogle() {
-  showToast('info', 'Autenticando', 'Conectando con Google...');
-  
-  // Simulate OAuth
-  setTimeout(() => {
-    const userData = {
-      email: 'usuario@gmail.com',
-      name: 'Usuario de Google',
-      loggedIn: true,
-      provider: 'google',
-      loginTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    showToast('success', '¡Conectado!', 'Inicio de sesión con Google exitoso');
-    
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 1000);
-  }, 1500);
+  showToast('info', 'Info', 'Login con Google no disponible aun');
 }
 
 function loginWithMicrosoft() {
-  showToast('info', 'Autenticando', 'Conectando con Microsoft...');
-  
-  // Simulate OAuth
-  setTimeout(() => {
-    const userData = {
-      email: 'usuario@outlook.com',
-      name: 'Usuario de Microsoft',
-      loggedIn: true,
-      provider: 'microsoft',
-      loginTime: new Date().toISOString()
-    };
-    
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    showToast('success', '¡Conectado!', 'Inicio de sesión con Microsoft exitoso');
-    
-    setTimeout(() => {
-      window.location.href = 'home.html';
-    }, 1000);
-  }, 1500);
+  showToast('info', 'Info', 'Login con Microsoft no disponible aun');
 }
 
 function signupWithGoogle() {
-  loginWithGoogle(); // Same process for simplicity
+  loginWithGoogle();
 }
 
 function signupWithMicrosoft() {
-  loginWithMicrosoft(); // Same process for simplicity
+  loginWithMicrosoft();
 }
 
 // Load remembered user
@@ -284,14 +278,14 @@ function loadRememberedUser() {
 // Toast notification
 function showToast(type, title, message) {
   const toastContainer = document.getElementById('toastContainer');
-  
+
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  
+
   let icon = '✓';
   if (type === 'error') icon = '✕';
   if (type === 'info') icon = 'ℹ';
-  
+
   toast.innerHTML = `
     <div class="toast-icon">${icon}</div>
     <div class="toast-content">
@@ -299,10 +293,9 @@ function showToast(type, title, message) {
       <div class="toast-message">${message}</div>
     </div>
   `;
-  
+
   toastContainer.appendChild(toast);
-  
-  // Auto remove after 4 seconds
+
   setTimeout(() => {
     toast.style.animation = 'slideOut 0.3s ease';
     setTimeout(() => {
@@ -313,12 +306,8 @@ function showToast(type, title, message) {
 
 // Check if user is already logged in
 window.addEventListener('load', function() {
-  const currentUser = localStorage.getItem('currentUser');
-  if (currentUser) {
-    const user = JSON.parse(currentUser);
-    if (user.loggedIn) {
-      // Optional: redirect to home if already logged in
-      // window.location.href = 'home.html';
-    }
+  const token = localStorage.getItem('token');
+  if (token) {
+    window.location.href = 'home.html';
   }
 });
