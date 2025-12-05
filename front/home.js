@@ -1,5 +1,5 @@
 // URL del backend
-const API_URL = 'https://projectdasw-production.up.railway.app/api';
+const API_URL = 'https://proyecto-dasw-api.onrender.com/api';
 
 // Variables globales
 let allProjects = [];
